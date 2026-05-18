@@ -29,28 +29,41 @@ ALIASES = {
 def get_crop(question):
     q = question.lower()
     for alias, crop in ALIASES.items():
-        if alias.lower() in q:
-            return crop
-    return None
+       
+if alias.lower() in q:
+           
+return crop
+   
+return None
 
 def get_question_type(question):
     q = question.lower()
-    if "കീട" in q or "pest" in q:
-        return "PEST", "കീടങ്ങൾ"
-    if "രോഗ" in q or "disease" in q:
-        return "DISEASE", "രോഗങ്ങൾ"
-    if "വളം" in q or "fertilizer" in q:
-        return "FERTILIZER", "വളങ്ങൾ"
-    return None, "ബന്ധപ്പെട്ട വിവരങ്ങൾ"
+   
+if "കീട" in q or "pest" in q:
+       
+return "PEST", "കീടങ്ങൾ"
+   
+if "രോഗ" in q or "disease" in q:
+       
+return "DISEASE", "രോഗങ്ങൾ"
+   
+if "വളം" in q or "fertilizer" in q:
+       
+return "FERTILIZER", "വളങ്ങൾ"
+   
+return None, "ബന്ധപ്പെട്ട വിവരങ്ങൾ"
 
 def ask_graph(question):
     crop = get_crop(question)
-    if not crop:
-        return "ചോദ്യത്തിലുള്ള വിളയുടെ പേര് ഗ്രാഫിൽ കണ്ടെത്താനായില്ല."
+   
+if not crop:
+       
+return "ചോദ്യത്തിലുള്ള വിളയുടെ പേര് ഗ്രാഫിൽ കണ്ടെത്താനായില്ല."
 
     label, heading = get_question_type(question)
 
-    if label:
+   
+if label:
         query = """
         MATCH (a:Entity)-[:RELATION]->(b:Entity)
         WHERE b.name = $crop AND a.label = $label
@@ -67,17 +80,22 @@ def ask_graph(question):
         """
         params = {"crop": crop}
 
-    with driver.session() as session:
+   
+with driver.session() as session:
         rows = session.run(query, **params).data()
 
-    if not rows:
-        return f"{crop} എന്ന വിളയ്ക്ക് {heading} സംബന്ധിച്ച വിവരം ഗ്രാഫിൽ ലഭ്യമല്ല."
+   
+if not rows:
+       
+return f"{crop} എന്ന വിളയ്ക്ക് {heading} സംബന്ധിച്ച വിവരം ഗ്രാഫിൽ ലഭ്യമല്ല."
 
     answer = f"{crop} - {heading}:\n"
     for row in rows:
-        if "label" in row:
+       
+if "label" in row:
             answer += f"- {row['name']} ({row['label']})\n"
         else:
             answer += f"- {row['name']}\n"
 
-    return answer
+   
+return answer
