@@ -9,10 +9,17 @@ driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
 CROPS = {
     "പയർ": ["പയർ", "പയറ", "payar", "payaru", "beans", "bean"],
-    "മുളക്": ["മുളക്", "മുളക", "mulak", "chilli", "chili", "pepper"],
-    "കാന്താരി": ["കാന്താരി", "കാന്താര", "kanthari"],
+    "മുളക്": ["മുളക്", "മുളക", "mulak", "chilli", "chili", "pepper", "capsicum"],
+    "കാന്താരി": ["കാന്താരി", "കാന്താര", "kanthari", "bird eye chilli"],
     "ഇഞ്ചി": ["ഇഞ്ചി", "ഇഞ്ച", "inchi", "ginger"],
     "വാഴ": ["വാഴ", "vazha", "banana"],
+    "തക്കാളി": ["തക്കാളി", "thakkali", "tomato"],
+    "കപ്പ": ["കപ്പ", "tapioca", "cassava"],
+    "ചക്ക": ["ചക്ക", "jackfruit"],
+    "വഴുതന": ["വഴുതന", "brinjal", "eggplant", "aubergine"],
+    "വെണ്ട": ["വെണ്ട", "okra", "ladies finger"],
+    "തേങ്ങ": ["തേങ്ങ", "coconut"],
+    "നെല്ല്": ["നെല്ല്", "rice", "paddy"],
 }
 
 def normalize(text):
@@ -24,12 +31,10 @@ def normalize(text):
 
 def detect_crop(question):
     q = normalize(question)
-
     for crop, aliases in CROPS.items():
         for alias in aliases:
             if normalize(alias) in q:
                 return crop
-
     return None
 
 def detect_question_type(question):
