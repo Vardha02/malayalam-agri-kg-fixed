@@ -1,22 +1,25 @@
 import streamlit as st
-from direct_qa import ask_graph
+from neo4j import GraphDatabase
 
-st.set_page_config(
-    page_title="Malayalam Agriculture KG QA",
-    page_icon="🌱"
-)
+st.title("Debug Test")
 
-st.title("🌱 Malayalam Agriculture Knowledge Graph QA")
+URI = st.secrets["NEO4J_URI"]
+USER = st.secrets["NEO4J_USERNAME"]
+PASSWORD = st.secrets["NEO4J_PASSWORD"]
 
-question = st.text_input(
-    "Ask your question",
-    placeholder="പയറിനെ ബാധിക്കുന്ന കീടങ്ങൾ?"
-)
+driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
-if st.button("Ask"):
-    if question.strip():
-        with st.spinner("Searching..."):
-            answer = ask_graph(question)
-        st.success(answer)
-    else:
-        st.warning("Please enter a question.")
+query = """
+MATCH (a:Entity)-[r:RELATION]->(b:Entity)
+WHERE b.name = 'പയർ'
+AND a.label = 'PEST'
+AND r.type = 'affects'
+RETURN a.name AS pest
+ORDER BY pest
+"""
+
+with driver.session(database="neo4j") as session:
+    rows = session.run(query).data()
+
+st.write("Rows found:", len(rows))
+st.write(rows)
