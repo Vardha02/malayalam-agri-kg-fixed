@@ -1,22 +1,41 @@
 import streamlit as st
-from direct_qa import ask_graph
+from neo4j import GraphDatabase
 
-st.set_page_config(
-    page_title="Malayalam Agriculture KG QA",
-    page_icon="🌱"
-)
+st.title("Import KG to Streamlit-connected Aura")
 
-st.title("🌱 Malayalam Agriculture Knowledge Graph QA")
+URI = st.secrets["NEO4J_URI"]
+USER = st.secrets["NEO4J_USERNAME"]
+PASSWORD = st.secrets["NEO4J_PASSWORD"]
 
-question = st.text_input(
-    "Ask your question",
-    placeholder="പയറിനെ ബാധിക്കുന്ന കീടങ്ങൾ?"
-)
+driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
-if st.button("Ask"):
-    if question.strip():
-        with st.spinner("Searching..."):
-            answer = ask_graph(question)
-        st.success(answer)
-    else:
-        st.warning("Please enter a question.")
+if st.button("IMPORT FULL KG"):
+    with driver.session() as session:
+        session.run("MATCH (n) DETACH DELETE n")
+
+        session.run("""
+        LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/Vardha02/agri-kg-files/main/kg_triplets_full_from_original_dataset.tsv' AS row
+        FIELDTERMINATOR '\t'
+        WITH row
+        WHERE row.head IS NOT NULL 
+          AND row.tail IS NOT NULL 
+          AND row.relation IS NOT NULL
+
+        MERGE (a:Entity {name: row.head})
+        SET a.label = row.head_label
+
+        MERGE (b:Entity {name: row.tail})
+        SET b.label = row.tail_label
+
+        MERGE (a)-[r:RELATION {type: row.relation}]->(b)
+        """)
+
+        rows = session.run("""
+        MATCH (a:Entity)-[r:RELATION]->(b:Entity)
+        WHERE b.name CONTAINS 'നെല്ല'
+          AND a.label = 'PEST'
+        RETURN a.name AS pest
+        """).data()
+
+    st.success("Import completed")
+    st.write(rows)
