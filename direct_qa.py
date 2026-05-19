@@ -53,12 +53,12 @@ def ask_graph(question):
     crop = detect_crop(question)
 
     if not crop:
-        return "TEST VERSION - വിള കണ്ടെത്താനായില്ല."
+        return "വിള കണ്ടെത്താനായില്ല."
 
     label, relation, heading = detect_question_type(question)
 
     if not label:
-        return f"TEST VERSION - crop found: {crop}, but question type not found."
+        return f"{crop} കണ്ടെത്തി, പക്ഷേ ചോദ്യത്തിന്റെ തരം മനസ്സിലായില്ല."
 
     query = """
     MATCH (a:Entity)-[r:RELATION]->(b:Entity)
@@ -78,9 +78,9 @@ def ask_graph(question):
         ).data()
 
     if not rows:
-        return f"TEST VERSION - crop found: {crop}, type found: {heading}, but no rows."
+        return f"{crop} സംബന്ധിച്ച {heading} വിവരം ലഭ്യമല്ല."
 
-    answer = f"TEST VERSION - {crop} - {heading}:\n"
+    answer = f"{crop} - {heading}:\n"
 
     for row in rows:
         answer += f"- {row['name']}\n"
