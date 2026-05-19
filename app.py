@@ -1,22 +1,27 @@
 import streamlit as st
-from direct_qa import ask_graph
+from neo4j import GraphDatabase
 
-st.set_page_config(
-    page_title="Malayalam Agriculture KG QA",
-    page_icon="🌱"
-)
+st.title("Delete bad nodes")
 
-st.title("🌱 Malayalam Agriculture Knowledge Graph QA")
+URI = st.secrets["NEO4J_URI"]
+USER = st.secrets["NEO4J_USERNAME"]
+PASSWORD = st.secrets["NEO4J_PASSWORD"]
 
-question = st.text_input(
-    "Ask your question",
-    placeholder="paddy pest"
-)
+driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 
-if st.button("Ask"):
-    if question.strip():
-        with st.spinner("Searching..."):
-            answer = ask_graph(question)
-        st.success(answer)
-    else:
-        st.warning("Please enter a question.")
+if st.button("DELETE BAD NODES"):
+    with driver.session() as session:
+        session.run("""
+        MATCH (n:Entity)
+        WHERE n.name IN ['അവയുടെ', 'അല്ലെങ്കിൽ', 'ഗ്രാം', 'ഇവയുടെ']
+        DETACH DELETE n
+        """)
+
+        rows = session.run("""
+        MATCH (a:Entity)-[r:RELATION]->(b:Entity)
+        WHERE b.name = 'ആപ്പിൾ'
+        RETURN a.name AS name, a.label AS label, r.type AS rel
+        """).data()
+
+    st.success("Deleted")
+    st.write(rows)
