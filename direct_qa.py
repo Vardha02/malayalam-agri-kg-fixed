@@ -19,7 +19,7 @@ CROPS = {
     "വഴുതന": ["വഴുതന", "brinjal", "eggplant", "aubergine"],
     "വെണ്ട": ["വെണ്ട", "okra", "ladies finger"],
     "തേങ്ങ": ["തേങ്ങ", "coconut"],
-    "നെല്ല്": ["നെല്ല്", "rice", "paddy"],
+    "നെല്ല്": ["നെല്ല്", "നെല്ല", "paddy", "rice"],
 }
 
 def normalize(text):
@@ -31,10 +31,12 @@ def normalize(text):
 
 def detect_crop(question):
     q = normalize(question)
+
     for crop, aliases in CROPS.items():
         for alias in aliases:
             if normalize(alias) in q:
                 return crop
+
     return None
 
 def detect_question_type(question):
