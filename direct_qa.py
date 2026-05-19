@@ -10,14 +10,14 @@ driver = GraphDatabase.driver(URI, auth=(USER, PASSWORD))
 CROPS = {
     "പയർ": ["പയർ", "പയറ", "payar", "payaru", "beans", "bean"],
     "മുളക്": ["മുളക്", "മുളക", "mulak", "chilli", "chili", "pepper", "capsicum"],
-    "കാന്താരി": ["കാന്താരി", "കാന്താര", "kanthari", "bird eye chilli"],
+    "കാന്താരി": ["കാന്താരി", "കാന്താര", "kanthari"],
     "ഇഞ്ചി": ["ഇഞ്ചി", "ഇഞ്ച", "inchi", "ginger"],
     "വാഴ": ["വാഴ", "vazha", "banana"],
     "തക്കാളി": ["തക്കാളി", "thakkali", "tomato"],
     "കപ്പ": ["കപ്പ", "tapioca", "cassava"],
     "ചക്ക": ["ചക്ക", "jackfruit"],
-    "വഴുതന": ["വഴുതന", "brinjal", "eggplant", "aubergine"],
-    "വെണ്ട": ["വെണ്ട", "okra", "ladies finger"],
+    "വഴുതന": ["വഴുതന", "brinjal", "eggplant"],
+    "വെണ്ട": ["വെണ്ട", "okra"],
     "തേങ്ങ": ["തേങ്ങ", "coconut"],
     "നെല്ല്": ["നെല്ല്", "നെല്ല", "paddy", "rice"],
 }
@@ -48,7 +48,7 @@ def detect_question_type(question):
     if any(w in q for w in ["രോഗ", "disease", "diseases"]):
         return "DISEASE", "affect", "രോഗങ്ങൾ"
 
-    if any(w in q for w in ["വളം", "fertilizer", "fertilizers", "fertiliser", "fertilisers"]):
+    if any(w in q for w in ["വളം", "fertilizer", "fertilisers", "fertilizers"]):
         return "FERTILIZER", "used_for", "വളങ്ങൾ"
 
     if any(w in q for w in ["ചികിത്സ", "treatment", "control"]):
@@ -69,7 +69,7 @@ def ask_graph(question):
 
     query = """
     MATCH (a:Entity)-[r:RELATION]->(b:Entity)
-    WHERE b.name = $crop
+    WHERE b.name CONTAINS $crop
       AND a.label = $label
       AND r.type CONTAINS $relation
     RETURN DISTINCT a.name AS name
