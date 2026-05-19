@@ -43,10 +43,10 @@ def detect_question_type(question):
     q = question.lower()
 
     if any(w in q for w in ["കീട", "pest", "pests", "affect", "affects", "attack"]):
-        return "PEST", "affects", "കീടങ്ങൾ"
+        return "PEST", "affect", "കീടങ്ങൾ"
 
     if any(w in q for w in ["രോഗ", "disease", "diseases"]):
-        return "DISEASE", "affects", "രോഗങ്ങൾ"
+        return "DISEASE", "affect", "രോഗങ്ങൾ"
 
     if any(w in q for w in ["വളം", "fertilizer", "fertilizers", "fertiliser", "fertilisers"]):
         return "FERTILIZER", "used_for", "വളങ്ങൾ"
@@ -71,7 +71,7 @@ def ask_graph(question):
     MATCH (a:Entity)-[r:RELATION]->(b:Entity)
     WHERE b.name = $crop
       AND a.label = $label
-      AND r.type = $relation
+      AND r.type CONTAINS $relation
     RETURN DISTINCT a.name AS name
     ORDER BY name
     """
