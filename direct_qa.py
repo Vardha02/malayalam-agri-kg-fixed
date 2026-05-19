@@ -11,7 +11,7 @@ CROPS = {
     "അമര": ["അമര", "amara", "hyacinth bean"],
     "അരി": ["അരി", "ari", "rice"],
     "ആപ്പിൾ": ["ആപ്പിൾ", "apple"],
-    "ഇഞ്ചി": ["ഇഞ്ചി", "ഇഞ്ച", "inchi", "ginger"],
+    "ഇഞ്ചി": ["ഇഞ്ചി", "inchi", "ginger"],
     "ഉഴുന്ന്": ["ഉഴുന്ന്", "uzhunnu", "black gram"],
     "എള്ളു": ["എള്ളു", "ellu", "sesame"],
     "കടല": ["കടല", "kadala", "gram", "chickpea"],
@@ -33,21 +33,21 @@ CROPS = {
     "ചുക്കു": ["ചുക്കു", "dry ginger"],
     "ചുരക്ക": ["ചുരക്ക", "bottle gourd"],
     "ചെറുപയർ": ["ചെറുപയർ", "cherupayar", "green gram"],
-    "ചേന": ["ചേന", "elephant foot yam", "yam"],
+    "ചേന": ["ചേന", "yam"],
     "ചോളം": ["ചോളം", "maize", "corn"],
     "ജാതി": ["ജാതി", "nutmeg"],
     "തക്കാളി": ["തക്കാളി", "tomato"],
-    "തിന": ["തിന", "foxtail millet", "millet"],
+    "തിന": ["തിന", "millet"],
     "തെങ്ങ്": ["തെങ്ങ്", "coconut tree"],
     "തേങ്ങ": ["തേങ്ങ", "coconut"],
     "നാരകം": ["നാരകം", "lemon", "lime"],
     "നിലക്കടല": ["നിലക്കടല", "groundnut", "peanut"],
     "നെല്ലിക്ക": ["നെല്ലിക്ക", "amla", "gooseberry"],
-    "നെല്ല്": ["നെല്ല്", "നെല്ല", "paddy", "rice"],
+    "നെല്ല്": ["നെല്ല്", "paddy", "rice"],
     "പടവലം": ["പടവലം", "snake gourd"],
     "പപ്പായ": ["പപ്പായ", "papaya"],
     "പയറു": ["പയറു", "payaru", "beans"],
-    "പയർ": ["പയർ", "പയറ", "payar", "beans", "bean"],
+    "പയർ": ["പയർ", "payar", "beans", "bean"],
     "പരുത്തി": ["പരുത്തി", "cotton"],
     "പാവൽ": ["പാവൽ", "bitter gourd"],
     "പുല്ല്": ["പുല്ല്", "grass"],
@@ -56,12 +56,12 @@ CROPS = {
     "ബീറ്റ്റൂട്ട്": ["ബീറ്റ്റൂട്ട്", "beetroot"],
     "ബീൻസ്": ["ബീൻസ്", "beans"],
     "മഞ്ഞൾ": ["മഞ്ഞൾ", "turmeric"],
-    "മാവ്": ["മാവ്", "mango tree", "mango"],
-    "മുളക്": ["മുളക്", "മുളക", "mulak", "chilli", "chili"],
+    "മാവ്": ["മാവ്", "mango"],
+    "മുളക്": ["മുളക്", "mulak", "chilli", "chili"],
     "റംബൂട്ടാൻ": ["റംബൂട്ടാൻ", "rambutan"],
     "റബ്ബർ": ["റബ്ബർ", "rubber"],
     "വഴുതന": ["വഴുതന", "brinjal", "eggplant"],
-    "വാഴ": ["വാഴ", "vazha", "banana"],
+    "വാഴ": ["വാഴ", "banana"],
     "വെണ്ട": ["വെണ്ട", "okra"],
     "വെണ്ടയ്ക്ക": ["വെണ്ടയ്ക്ക", "okra", "ladies finger"],
     "സൂര്യകാന്തി": ["സൂര്യകാന്തി", "sunflower"],
@@ -77,12 +77,10 @@ def normalize(text):
 
 def detect_crop(question):
     q = normalize(question)
-
     for crop, aliases in CROPS.items():
         for alias in aliases:
             if normalize(alias) in q:
                 return crop
-
     return None
 
 def detect_question_type(question):
@@ -94,7 +92,7 @@ def detect_question_type(question):
     if any(w in q for w in ["രോഗ", "disease", "diseases"]):
         return "DISEASE", "affects", "രോഗങ്ങൾ"
 
-    if any(w in q for w in ["വളം", "fertilizer", "fertilisers", "fertilizers"]):
+    if any(w in q for w in ["വളം", "fertilizer", "fertilizers"]):
         return "FERTILIZER", "used_for", "വളങ്ങൾ"
 
     if any(w in q for w in ["ചികിത്സ", "treatment", "control"]):
@@ -106,12 +104,12 @@ def ask_graph(question):
     crop = detect_crop(question)
 
     if not crop:
-        return "വിള കണ്ടെത്താനായില്ല."
+        return "NEW VERSION - വിള കണ്ടെത്താനായില്ല."
 
     label, relation, heading = detect_question_type(question)
 
     if not label:
-        return f"{crop} കണ്ടെത്തി, പക്ഷേ ചോദ്യത്തിന്റെ തരം മനസ്സിലായില്ല."
+        return f"NEW VERSION - {crop} കണ്ടെത്തി, പക്ഷേ ചോദ്യത്തിന്റെ തരം മനസ്സിലായില്ല."
 
     query = """
     MATCH (a:Entity)-[r:RELATION]->(b:Entity)
@@ -131,9 +129,9 @@ def ask_graph(question):
         ).data()
 
     if not rows:
-        return f"{crop} സംബന്ധിച്ച {heading} വിവരം ലഭ്യമല്ല."
+        return f"NEW VERSION - {crop} സംബന്ധിച്ച {heading} വിവരം ലഭ്യമല്ല."
 
-    answer = f"{crop} - {heading}:\n"
+    answer = f"NEW VERSION - {crop} - {heading}:\n"
 
     for row in rows:
         answer += f"- {row['name']}\n"
